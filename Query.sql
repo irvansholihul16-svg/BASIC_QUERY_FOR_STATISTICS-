@@ -65,6 +65,48 @@
  group BY s.student_id, s.student_number, s.NAME;
  
  
+#Join antar table
+#innerjoin
+Select s.name, m.variable, m.VALUES
+from student s
+join measurement m on s student_id = m student_id;
+
+SELECT s.name, m.valueFROM students s
+LEFT JOIN measurements m ON s.student_id = m.student_id;
+
+#Subquery
+Subquery scalarSELECT name FROM students WHERE student_id = (SELECT student_id FROM measurements 
+WHERE value = (SELECT MAX(value) FROM measurements WHERE variable='score_lab') LIMIT 1);   
+--Subquery dalam FROM (derived table)
+SELECT cohort, AVG(avg_score) 
+FROM (SELECT s.cohort, AVG(m.value) AS avg_scoreFROM students s 
+JOIN measurements m ON s.student_id=m.student_idWHERE m.variable='score_lab'GROUP BY s.student_id) AS per_student GROUP BY cohort;
+
+-- Buat view ringkasan nilai lab per mahasiswa
+CREATE VIEW v_avg_lab AS 
+SELECT s.student_id, s.student_number, s.name, AVG(m.value) AS avg_score
+FROM students s JOIN measurements m ON s.student_id = m.student_id 
+WHERE m.variable='score_lab'GROUP BY s.student_id;
+
+Select*from v_avg_lab
+#INSERT,UPDATE,DELETE
+#INSERT
+INSERT INTO students (student_number, name, cohort, faculty) VALUES ('S005','Eka',2024,'Statistika');
+#UPDATE
+UPDATE students SET name='Budi Santoso' WHERE student_number='S002';
+
+#DELETE
+DELETE FROM students WHERE student_number='S005';
+
+#Constraint dan Indeks sederhana
+-- Tambah constraint UNIQUE
+ALTER TABLE students ADD UNIQUE (student_number);
+-- Tambah index untuk pencarian cepat pada measurements.variable
+CREATE INDEX idx_variable ON measurements(variable);
+#Fungsi dasar Statistik
+select AVG(value) AS mean, STDDEV_SAMP(value) AS sd, count(*)as n 
+from measurements
+where variable ='time_sec'
  #rename table
  RENAME TABLE student TO students;
  #menghapus table
@@ -82,6 +124,7 @@ SELECT* FROM surveys;
 SELECT* FROM measurements; 
  
 
+ 
  
  
  
